@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 //using System.Threading;
 //using System.Runtime.InteropServices;
 //using System.Collections.Generic;
@@ -21,6 +21,8 @@ namespace MyTimer
             //Console.OutputEncoding = System.Text.Encoding.UTF8;
             //Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.Title = "❤️🌟⭐️💫💖";
+            Console.SetBufferSize(120, 30);
+
 
             byte LONG = 0;
             byte SHORT = 0;
@@ -36,11 +38,14 @@ namespace MyTimer
 
                 Console.ForegroundColor = GetRandomColor();
                 Console.SetCursorPosition(0, 0);
-                Console.Write($"Minutes: ");
+                Console.Write($"Minutes:          ");
 
                 Console.ForegroundColor = GetRandomColor();
+                Console.SetCursorPosition(9, 0);
                 string input = Console.ReadLine() ?? "";
-                if (!int.TryParse(input, out int time)) return;
+
+                if (input == "q") return;
+                if (!int.TryParse(input, out int time)) break;
 
                 string breaksString;
                 string worksString;
@@ -79,7 +84,9 @@ namespace MyTimer
                 TotalRepeats(in LONG, in SHORT, in worksString, in breaksString);
                 HistoryList(in LONGlist, in SHORTlist);
                 Work();
-                System.Threading.Thread.Sleep(time * 60000);
+
+                int convertedTimeValueInOneMinute = 60000;
+                System.Threading.Thread.Sleep(time * convertedTimeValueInOneMinute);
 
                 PlayMusic();
                 OpenConsole();
@@ -126,12 +133,14 @@ namespace MyTimer
 
             for (int i = 0; i < SHORTlist.Count; i++)
             {
+                Console.SetCursorPosition(51, 10 + i); Console.Write("   ");
                 Console.SetCursorPosition(51, 10 + i);
                 Console.ForegroundColor = GetRandomColor(); Console.Write(SHORTlist[i]);
             }
 
             for (int k = 0; k < LONGlist.Count; k++)
             {
+                Console.SetCursorPosition(65, 10 + k); Console.Write("   ");
                 Console.SetCursorPosition(65, 10 + k);
                 Console.ForegroundColor = GetRandomColor(); Console.Write(LONGlist[k]);
             }
