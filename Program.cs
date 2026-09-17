@@ -1,7 +1,9 @@
-﻿//using System;
-//using System.Threading;
+﻿using System;
 //using System.Runtime.InteropServices;
-//using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MyTimer
 {
@@ -16,26 +18,26 @@ namespace MyTimer
         static int totalWorksSpent = 0;
         static int totalTimeSpent => totalBreaksSpent + totalWorksSpent;
 
-        public static void Main(string[] args)
+
+        // ----------   MAIN   ---------- //
+        public static async Task Main(string[] args)
         {
-            //Console.OutputEncoding = System.Text.Encoding.UTF8;
-            //Console.InputEncoding = System.Text.Encoding.UTF8;
             Console.Title = "❤️🌟⭐️💫💖";
             Console.SetBufferSize(120, 30);
 
 
             byte LONG = 0;
             byte SHORT = 0;
-            System.Collections.Generic.List<byte> LONGlist = new System.Collections.Generic.List<byte>(16);
-            System.Collections.Generic.List<byte> SHORTlist = new System.Collections.Generic.List<byte>(16);
+            var LONGlist = new List<byte>(16);
+            var SHORTlist = new List<byte>(16);
+
+            Console.SetCursorPosition(8, 25);
+            Console.Write("q - exit    e - stop");
 
             DrawBorder();
 
             while (true)
             {
-                //Count(in LONG, in SHORT, in worksString, in breaksString);
-                //HistoryList(in LONGlist, in SHORTlist);
-
                 Console.ForegroundColor = GetRandomColor();
                 Console.SetCursorPosition(0, 0);
                 Console.Write($"Minutes:          ");
@@ -45,7 +47,7 @@ namespace MyTimer
                 string input = Console.ReadLine() ?? "";
 
                 if (input == "q") return;
-                if (!int.TryParse(input, out int time)) break;
+                if (!int.TryParse(input, out int time)) continue;
 
                 string breaksString;
                 string worksString;
@@ -62,7 +64,6 @@ namespace MyTimer
                         LONGlist.RemoveAt(LONGlist.Count - 1);
                         LONGlist.Capacity = 15;
                     }
-                    //if (LONGlist.Count >= 15) LONGlist.TrimExcess();
                 }
                 else
                 {
@@ -77,25 +78,57 @@ namespace MyTimer
                         SHORTlist.RemoveAt(SHORTlist.Count - 1);
                         SHORTlist.Capacity = 15;
                     }
-                    //if (SHORTlist.Count >= 15) SHORTlist.TrimExcess();
                 }
-                //GC.Collect();
 
                 TotalRepeats(in LONG, in SHORT, in worksString, in breaksString);
                 HistoryList(in LONGlist, in SHORTlist);
-                Work();
 
-                int convertedTimeValueInOneMinute = 60000;
-                System.Threading.Thread.Sleep(time * convertedTimeValueInOneMinute);
+
+
+                using var cts = new CancellationTokenSource();
+                CancellationToken token = cts.Token;
+
+                Task taska = TimerStart(time * 60000, token);
+
+                _ = Task.Run(() =>
+                {
+                    while (true)
+                    {
+                        var key = Console.ReadKey(intercept: true);
+                        if (key.Key == ConsoleKey.E)
+                        {
+                            cts.Cancel();
+                            break;
+                        }
+                    }
+                });
+
+                await taska;
+            }
+        }
+
+
+        // ----------   TIMER   ---------- //
+        private static async Task TimerStart(int time, CancellationToken token)
+        {
+            Work();
+
+            try
+            {
+                await Task.Delay(time, token);
 
                 PlayMusic();
                 OpenConsole();
                 TotalTimeSpent(in time);
                 Done();
             }
+            catch (OperationCanceledException)
+            {
+                Canceled();
+            }
         }
 
-
+        // ----------   TOTAL   ---------- //
         private static void TotalRepeats(in byte LONG, in byte SHORT, in string worksString, in string breaksString)
         {
             Console.SetCursorPosition(29, 2);
@@ -109,6 +142,7 @@ namespace MyTimer
             Console.ForegroundColor = GetRandomColor(); Console.Write(LONG + worksString);
         }
 
+        // ----------   HISTORY   ---------- //
         private static void HistoryList(in System.Collections.Generic.List<byte> LONGlist, in System.Collections.Generic.List<byte> SHORTlist)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
@@ -146,6 +180,7 @@ namespace MyTimer
             }
         }
 
+        // ----------   TIMESPENT   ---------- //
         private static void TotalTimeSpent(in int time)
         {
             if (time > 15) // long | work
@@ -173,11 +208,13 @@ namespace MyTimer
             Console.ForegroundColor = GetRandomColor(); Console.WriteLine(totalTimeSpent);
         }
 
+        // ----------   OPEN   ---------- //
         private static void OpenConsole()
         {
             ShowWindow(GetConsoleWindow(), 9);
         }
 
+        // ----------   DONE   ---------- //
         private static void Done()
         {
             //Console.Clear();
@@ -190,6 +227,22 @@ namespace MyTimer
             Console.Write("        ");
         }
 
+        private static void Canceled()
+        {
+            Console.SetCursorPosition(10, 5);
+            Console.ForegroundColor = GetRandomColor(); Console.Write("C");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("A");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("N");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("C");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("L");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("D");
+            Console.ForegroundColor = GetRandomColor(); Console.Write("!");
+            Console.Write("        ");
+        }
+
+        // ----------   WORK   ---------- //
         private static void Work()
         {
             Console.SetCursorPosition(10, 5);
@@ -208,6 +261,7 @@ namespace MyTimer
             Console.ForegroundColor = GetRandomColor(); Console.Write(".");
         }
 
+        // ----------   COLOR   ---------- //
         private static ConsoleColor GetRandomColor()
         {
             var colors = new[] {
@@ -220,10 +274,11 @@ namespace MyTimer
             return colors[rand.Next(colors.Length)];
         }
 
+        // ----------   DRAW   ---------- //
         private static void DrawBorder()
         {
             Console.ForegroundColor = ConsoleColor.Yellow; // yellow
-            
+
             for (byte i = 83; i <= 108; i++)
             {
                 Console.SetCursorPosition(i, 13);
@@ -250,6 +305,7 @@ namespace MyTimer
             //Console.WriteLine("═══════════════════");
         }
 
+        // ----------   MUSIC   ---------- //
         private static void PlayMusic()
         {
             // ♩ ♪ ♪ ♪ | ♩ ♪ ♪ ♪ | финал (медленный диско)
