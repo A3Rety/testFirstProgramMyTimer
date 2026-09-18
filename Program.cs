@@ -12,11 +12,10 @@ namespace MyTimer
         [System.Runtime.InteropServices.DllImport("kernel32.dll")] static extern IntPtr GetConsoleWindow();
         [System.Runtime.InteropServices.DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        static Random rand = new Random();
-
-        static int totalBreaksSpent = 0;
-        static int totalWorksSpent = 0;
-        static int totalTimeSpent => totalBreaksSpent + totalWorksSpent;
+        private static int totalBreaksSpent = 0;
+        private static int totalWorksSpent = 0;
+        private static int totalTimeSpent => totalBreaksSpent + totalWorksSpent;
+        private static volatile bool _stopListener = true;
 
 
         // ----------   MAIN   ---------- //
@@ -90,20 +89,27 @@ namespace MyTimer
 
                 Task taska = TimerStart(time * 60000, token);
 
+                _stopListener = false;
                 _ = Task.Run(() =>
                 {
-                    while (true)
+                    while (!_stopListener)
                     {
-                        var key = Console.ReadKey(intercept: true);
-                        if (key.Key == ConsoleKey.E)
+                        if (Console.KeyAvailable)
                         {
-                            cts.Cancel();
-                            break;
+                            var key = Console.ReadKey(intercept: true);
+                            if (key.Key == ConsoleKey.E)
+                            {
+                                cts.Cancel();
+                                _stopListener = true;
+                                break;
+                            }
                         }
+                        Thread.Sleep(150);
                     }
                 });
 
                 await taska;
+                _stopListener = true;
             }
         }
 
@@ -117,6 +123,7 @@ namespace MyTimer
             {
                 await Task.Delay(time, token);
 
+                _stopListener = true;
                 PlayMusic();
                 OpenConsole();
                 TotalTimeSpent(in time);
@@ -193,19 +200,19 @@ namespace MyTimer
             }
 
             Console.SetCursorPosition(91, 14);
-            Console.ForegroundColor = ConsoleColor.Gray; Console.WriteLine("TIME SPENT");
+            Console.ForegroundColor = ConsoleColor.Gray; Console.Write("TIME SPENT");
 
             Console.ForegroundColor = ConsoleColor.Yellow; // Yellow
-            Console.SetCursorPosition(85, 15); Console.WriteLine("Breaks - ");
-            Console.SetCursorPosition(91, 16); Console.WriteLine("Works - ");
-            Console.SetCursorPosition(96, 17); Console.WriteLine("Total - ");
+            Console.SetCursorPosition(85, 15); Console.Write("Breaks - ");
+            Console.SetCursorPosition(91, 16); Console.Write("Works - ");
+            Console.SetCursorPosition(96, 17); Console.Write("Total - ");
 
             Console.SetCursorPosition(94, 15);
-            Console.ForegroundColor = GetRandomColor(); Console.WriteLine(totalBreaksSpent);
+            Console.ForegroundColor = GetRandomColor(); Console.Write(totalBreaksSpent);
             Console.SetCursorPosition(99, 16);
-            Console.ForegroundColor = GetRandomColor(); Console.WriteLine(totalWorksSpent);
+            Console.ForegroundColor = GetRandomColor(); Console.Write(totalWorksSpent);
             Console.SetCursorPosition(104, 17);
-            Console.ForegroundColor = GetRandomColor(); Console.WriteLine(totalTimeSpent);
+            Console.ForegroundColor = GetRandomColor(); Console.Write(totalTimeSpent);
         }
 
         // ----------   OPEN   ---------- //
@@ -227,6 +234,7 @@ namespace MyTimer
             Console.Write("        ");
         }
 
+        // ----------   CANCELED   ---------- //
         private static void Canceled()
         {
             Console.SetCursorPosition(10, 5);
@@ -264,15 +272,17 @@ namespace MyTimer
         // ----------   COLOR   ---------- //
         private static ConsoleColor GetRandomColor()
         {
-            var colors = new[] {
+            return Colors[Random.Shared.Next(Colors.Length)];
+        }
+
+        private static readonly ConsoleColor[] Colors =
+        [
                 ConsoleColor.Red, ConsoleColor.Yellow, ConsoleColor.Green,
                 ConsoleColor.Cyan, ConsoleColor.Magenta, ConsoleColor.Blue,
                 ConsoleColor.White, ConsoleColor.DarkBlue, ConsoleColor.DarkCyan,
                 ConsoleColor.DarkGray, ConsoleColor.DarkGreen, ConsoleColor.DarkMagenta,
                 ConsoleColor.DarkRed, ConsoleColor.DarkYellow, ConsoleColor.Gray
-            };
-            return colors[rand.Next(colors.Length)];
-        }
+        ];
 
         // ----------   DRAW   ---------- //
         private static void DrawBorder()
