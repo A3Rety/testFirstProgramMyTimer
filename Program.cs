@@ -30,19 +30,15 @@ namespace MyTimer
             var LONGlist = new List<byte>(16);
             var SHORTlist = new List<byte>(16);
 
-            Console.SetCursorPosition(8, 25);
-            Console.Write("q - exit    e - stop");
+            WriteTextHere(text: "q - exit    e - stop", left: 8, top: 25, color: 0);
 
             DrawBorder();
 
             while (true)
             {
-                Console.ForegroundColor = GetRandomColor();
-                Console.SetCursorPosition(0, 0);
-                Console.Write($"Minutes:          ");
+                WriteTextHere(text: "Minutes:          ", left: 0, top: 0);
 
-                Console.ForegroundColor = GetRandomColor();
-                Console.SetCursorPosition(9, 0);
+                Console.ForegroundColor = GetRandomColor(); Console.SetCursorPosition(9, 0);
                 string input = Console.ReadLine() ?? "";
 
                 if (input == "q") return;
@@ -83,7 +79,6 @@ namespace MyTimer
                 HistoryList(in LONGlist, in SHORTlist);
 
 
-
                 using var cts = new CancellationTokenSource();
                 CancellationToken token = cts.Token;
 
@@ -105,8 +100,7 @@ namespace MyTimer
                             }
                         }
                         Thread.Sleep(150);
-                    }
-                });
+                    }});
 
                 await taska;
                 _stopListener = true;
@@ -139,52 +133,36 @@ namespace MyTimer
         // ----------   TOTAL   ---------- //
         private static void TotalRepeats(in byte LONG, in byte SHORT, in string worksString, in string breaksString)
         {
-            Console.SetCursorPosition(29, 2);
-            Console.ForegroundColor = ConsoleColor.Gray; Console.Write("TIMES");
+            WriteTextHere(text: "TIMES", left: 29, top: 2, color: ConsoleColor.Gray);
 
-            Console.SetCursorPosition(10, 3);
-            Console.ForegroundColor = ConsoleColor.Yellow; Console.Write("Breaks (1-15): ");
-            Console.ForegroundColor = GetRandomColor(); Console.Write(SHORT + breaksString);
-            Console.ForegroundColor = ConsoleColor.Yellow; Console.Write(" / ");
-            Console.Write("Works (15+): ");
-            Console.ForegroundColor = GetRandomColor(); Console.Write(LONG + worksString);
+            WriteTextHere(text: "Breaks (1-15): ", left: 10, top: 3, color: ConsoleColor.Yellow);
+            WriteTextHere(text: $"{SHORT + breaksString}", randomColorWord: false);
+            WriteTextHere(text: " / Works (15+): ", color: ConsoleColor.Yellow);
+            WriteTextHere(text: $"{LONG + worksString}", randomColorWord: false);
         }
 
         // ----------   HISTORY   ---------- //
         private static void HistoryList(in System.Collections.Generic.List<byte> LONGlist, in System.Collections.Generic.List<byte> SHORTlist)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.SetCursorPosition(52, 9);
-            Console.Write("HISTORY");
+            WriteTextHere(text: "HISTORY", left: 52, top: 9, color: ConsoleColor.Gray);
 
-            Console.ForegroundColor = ConsoleColor.Yellow; // yellow
+            WriteTextHere(text: "Breaks: ", left: 43, top: 10, color: ConsoleColor.Yellow);
+            WriteTextHere(text: "|", left: 55, top: 10, color: 0);
+            WriteTextHere(text: "Works: ", left: 58, top: 10, color: 0);
 
-            Console.SetCursorPosition(43, 10);
-            Console.Write("Breaks: ");
-
-            Console.SetCursorPosition(55, 10);
-            Console.Write("|");
-
-            Console.SetCursorPosition(58, 10);
-            Console.Write("Works: ");
-
-            Console.SetCursorPosition(51, 25);
-            Console.Write("[]");
-            Console.SetCursorPosition(65, 25);
-            Console.Write("[]");
+            WriteTextHere(text: "[]", left: 51, top: 25, color: 0);
+            WriteTextHere(text: "[]", left: 65, top: 25, color: 0);
 
             for (int i = 0; i < SHORTlist.Count; i++)
             {
-                Console.SetCursorPosition(51, 10 + i); Console.Write("   ");
-                Console.SetCursorPosition(51, 10 + i);
-                Console.ForegroundColor = GetRandomColor(); Console.Write(SHORTlist[i]);
+                WriteTextHere(text: "   ", left: 51, top: 10 + i, color: 0);
+                WriteTextHere(text: $"{SHORTlist[i]}", left: 51, top: 10 + i);
             }
 
             for (int k = 0; k < LONGlist.Count; k++)
             {
-                Console.SetCursorPosition(65, 10 + k); Console.Write("   ");
-                Console.SetCursorPosition(65, 10 + k);
-                Console.ForegroundColor = GetRandomColor(); Console.Write(LONGlist[k]);
+                WriteTextHere(text: "   ", left: 65, top: 10 + k, color: 0);
+                WriteTextHere(text: $"{LONGlist[k]}", left: 65, top: 10 + k);
             }
         }
 
@@ -200,20 +178,15 @@ namespace MyTimer
                 totalBreaksSpent += time;
             }
 
-            Console.SetCursorPosition(91, 14);
-            Console.ForegroundColor = ConsoleColor.Gray; Console.Write("TIME SPENT");
+            WriteTextHere(text: "TIME SPENT", left: 91, top: 14, color: ConsoleColor.Gray);
+            WriteTextHere(text: "Breaks - ", left: 85, top: 15, color: ConsoleColor.Yellow);
+            WriteTextHere(text: "Works - ", left: 91, top: 16, color: 0);
+            WriteTextHere(text: "Total - ", left: 96, top: 17, color: 0);
 
-            Console.ForegroundColor = ConsoleColor.Yellow; // Yellow
-            Console.SetCursorPosition(85, 15); Console.Write("Breaks - ");
-            Console.SetCursorPosition(91, 16); Console.Write("Works - ");
-            Console.SetCursorPosition(96, 17); Console.Write("Total - ");
+            WriteTextHere(text: $"{totalBreaksSpent}", left: 94, top: 15);
+            WriteTextHere(text: $"{totalWorksSpent}", left: 99, top: 16);
+            WriteTextHere(text: $"{totalTimeSpent}", left: 104, top: 17);
 
-            Console.SetCursorPosition(94, 15);
-            Console.ForegroundColor = GetRandomColor(); Console.Write(totalBreaksSpent);
-            Console.SetCursorPosition(99, 16);
-            Console.ForegroundColor = GetRandomColor(); Console.Write(totalWorksSpent);
-            Console.SetCursorPosition(104, 17);
-            Console.ForegroundColor = GetRandomColor(); Console.Write(totalTimeSpent);
         }
 
         // ----------   OPEN   ---------- //
@@ -225,49 +198,19 @@ namespace MyTimer
         // ----------   DONE   ---------- //
         private static void Done()
         {
-            //Console.Clear();
-            Console.SetCursorPosition(10, 5);
-            Console.ForegroundColor = GetRandomColor(); Console.Write("D");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("O");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("N");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("!");
-            Console.Write("        ");
+            WriteTextHere(text: "DONE!        ", left: 10, top: 5, randomColorWord: true);
         }
 
         // ----------   CANCELED   ---------- //
         private static void Canceled()
         {
-            Console.SetCursorPosition(10, 5);
-            Console.ForegroundColor = GetRandomColor(); Console.Write("C");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("A");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("N");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("C");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("L");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("D");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("!");
-            Console.Write("        ");
+            WriteTextHere(text: "CANCELED!        ", left: 10, top: 5, randomColorWord: true);
         }
 
         // ----------   WORK   ---------- //
         private static void Work()
         {
-            Console.SetCursorPosition(10, 5);
-            Console.ForegroundColor = GetRandomColor(); Console.Write("P");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("R");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("O");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("C");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("E");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("S");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("S");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("I");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("N");
-            Console.ForegroundColor = GetRandomColor(); Console.Write("G");
-            Console.ForegroundColor = GetRandomColor(); Console.Write(".");
-            Console.ForegroundColor = GetRandomColor(); Console.Write(".");
-            Console.ForegroundColor = GetRandomColor(); Console.Write(".");
+            WriteTextHere(text: "PROCESSING...", left: 10, top: 5, randomColorWord: true);
         }
 
         // ----------   COLOR   ---------- //
@@ -292,28 +235,58 @@ namespace MyTimer
 
             for (byte i = 83; i <= 108; i++)
             {
-                Console.SetCursorPosition(i, 13);
-                Console.Write("-");
-                Console.SetCursorPosition(i, 18);
-                Console.Write("-");
+                WriteTextHere(text: "-", left: i, top: 13, color: 0);
+                WriteTextHere(text: "-", left: i, top: 18, color: 0);
             }
             for (byte i = 14; i <= 17; i++) // -1
             {
-                Console.SetCursorPosition(83, i);
-                Console.Write("|");
-                Console.SetCursorPosition(108, i);
-                Console.Write("|");
+                WriteTextHere(text: "|", left: 83, top: i, color: 0);
+                WriteTextHere(text: "|", left: 108, top: i, color: 0);
             }
 
-            Console.SetCursorPosition(83, 13);
-            Console.Write("+");
-            Console.SetCursorPosition(108, 13);
-            Console.Write("+");
-            Console.SetCursorPosition(83, 18);
-            Console.Write("+");
-            Console.SetCursorPosition(108, 18);
-            Console.Write("+");
+            WriteTextHere(text: "+", left: 83, top: 13, color: 0);
+            WriteTextHere(text: "+", left: 108, top: 13, color: 0);
+            WriteTextHere(text: "+", left: 83, top: 18, color: 0);
+            WriteTextHere(text: "+", left: 108, top: 18, color: 0);
             //Console.WriteLine("═══════════════════");
+        }
+
+        // ---------- DRAW TEXT HERE!!! ----------//
+        private static void WriteTextHere(string text, int left = -1, int top = -1)
+        {
+            Console.ForegroundColor = GetRandomColor();
+
+            if (left >= 0 && top >= 0)
+                Console.SetCursorPosition(left, top);
+            Console.Write(text);
+        }
+
+        private static void WriteTextHere(string text, int left = -1, int top = -1, bool randomColorWord = false)
+        {
+            if (randomColorWord == false)
+            {
+                WriteTextHere(text, left, top);
+                return;
+            }
+
+            if (left >= 0 && top >= 0)
+                Console.SetCursorPosition(left, top);
+            for (int i = 0; i < text.Length; i++)
+            {
+                Console.ForegroundColor = GetRandomColor(); Console.Write(text[i]);
+            }
+        }
+
+        private static void WriteTextHere(string text, int left = -1, int top = -1, ConsoleColor color = 0)
+        {
+            if (color != 0)
+            {
+                Console.ForegroundColor = color;
+            }
+
+            if (left >= 0 && top >= 0)
+                Console.SetCursorPosition(left, top);
+            Console.Write(text);
         }
 
         // ----------   MUSIC   ---------- //
