@@ -87,7 +87,7 @@ namespace MyTimer
                 using var cts = new CancellationTokenSource();
                 CancellationToken token = cts.Token;
 
-                Task taska = TimerStart(time * 60000, token);
+                Task taska = TimerStart(time, token);
 
                 _stopListener = false;
                 _ = Task.Run(() =>
@@ -118,10 +118,11 @@ namespace MyTimer
         private static async Task TimerStart(int time, CancellationToken token)
         {
             Work();
+            int oneMinuteInMS = 60000;
 
             try
             {
-                await Task.Delay(time, token);
+                await Task.Delay(time * oneMinuteInMS, token);
 
                 _stopListener = true;
                 PlayMusic();
