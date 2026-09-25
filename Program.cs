@@ -15,8 +15,9 @@ internal static class Program
     internal static int TotalTimeSpent => TotalBreaksSpent + TotalWorksSpent;
     internal static volatile bool StopListener = true;
 
-    private static readonly List<byte>LONGlist = new(16);
-    private static readonly List<byte>SHORTlist = new(16);
+    private static readonly List<byte> LONGlist = new(16);
+    private static readonly List<byte> SHORTlist = new(16);
+    private static readonly Stopwatch stopWatch = new();
 
 
     // ----------   MAIN   ---------- //
@@ -28,12 +29,18 @@ internal static class Program
         byte LONG = 0;
         byte SHORT = 0;
 
-        WriteTextHere(text: "q - exit    e - stop", left: 8, top: 25, color: 0);
+        WriteTextHere(text: "q - exit    e - time", left: 8, top: 25, color: 0);
+        WriteTextHere(text: "r - stop", left: 20, top: 26, color: 0);
         Gui.DrawBorder();
 
         while (true)
         {
-            WriteTextHere(text: "Minutes:          ", left: 0, top: 0);
+            WriteTextHere(text: "Minutes: " + new string (' ', 230), left: 0, top: 0);
+
+            while (Console.KeyAvailable)
+            {
+                Console.ReadKey(intercept: true);
+            }
 
             Console.ForegroundColor = Resources.GetRandomColor(); Console.SetCursorPosition(9, 0);
             string input = Console.ReadLine() ?? "";
@@ -86,7 +93,7 @@ internal static class Program
     // ----------   TIMER   ---------- //
     internal static async Task TimerStart(int time, CancellationToken token)
     {
-        var stopWatch = Stopwatch.StartNew();
+        stopWatch.Restart();
         Gui.Work();
         int oneMinuteInMS = 60000;
 
@@ -94,6 +101,7 @@ internal static class Program
         {
             await Task.Delay(time * oneMinuteInMS, token);
 
+            stopWatch.Stop();
             StopListener = true;
             ConsoleCommands.PlayMusic();
             ConsoleCommands.OpenConsole();
@@ -137,19 +145,24 @@ internal static class Program
                 if (Console.KeyAvailable)
                 {
                     var key = Console.ReadKey(intercept: true);
-                    if (key.Key == ConsoleKey.E)
+                    if (key.Key == ConsoleKey.R)
                     {
                         cts.Cancel();
                         StopListener = true;
                         break;
                     }
+                    else if (key.Key == ConsoleKey.E)
+                    {
+                        WriteTextHere(text: $"{stopWatch.Elapsed:hh\\:mm\\:ss}", left: 20, top: 23);
+                        continue;
+                    }
                 }
                 Thread.Sleep(150);
             }
+            WriteTextHere(text: "        ", left: 20, top: 23);
         });
 
         await taska;
     }
 
 }
-

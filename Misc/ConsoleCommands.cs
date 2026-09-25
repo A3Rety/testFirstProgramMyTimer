@@ -24,7 +24,7 @@ internal static class ConsoleCommands
 
     internal static void PlaySound()
     {
-        Console.Beep(262, 300);
+        Console.Beep(330, 150);
     }
 
     // ----------   OPEN   ---------- //
